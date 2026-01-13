@@ -33,6 +33,21 @@
                     <%= post.likes %>
                 </span> Likes
             </div>
+            <div class="ml-auto flex items-center gap-3">
+                <form action="/posts/<%= post.id %>/like" method="POST">
+                    <button type="submit" class="text-neutral-500 hover:text-pink-500">Like</button>
+                </form>
+                <form action="/posts/<%= post.id %>/share" method="POST">
+                    <button type="submit" class="text-neutral-500 hover:text-green-400">Share</button>
+                </form>
+                <% if (user && user.id===post.user_id) { %>
+                    <a href="/posts/<%= post.id %>/edit" class="text-yellow-400">Edit</a>
+                    <form action="/posts/<%= post.id %>?_method=DELETE" method="POST"
+                        onsubmit="return confirm('Delete this post?')">
+                        <button type="submit" class="text-red-500">Delete</button>
+                    </form>
+                    <% } %>
+            </div>
         </div>
     </div>
 
@@ -56,33 +71,35 @@
 
     <div class="pb-20">
         <% replies.forEach(reply=> { %>
-            <div class="border-b border-neutral-800 p-4 hover:bg-neutral-900/50 transition duration-200">
-                <div class="flex gap-3">
-                    <img src="https://ui-avatars.com/api/?name=<%= reply.name %>&background=random&color=fff&rounded=true"
-                        class="w-10 h-10 rounded-full" alt="<%= reply.name %>">
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold text-white">
-                                    <%= reply.name %>
+            <% const threadId=reply.parent_id ? reply.parent_id : reply.id; %>
+                <a href="/posts/<%= threadId %>"
+                    class="block border-b border-neutral-800 p-4 hover:bg-neutral-900/50 transition duration-200">
+                    <div class="flex gap-3">
+                        <img src="https://ui-avatars.com/api/?name=<%= reply.name %>&background=random&color=fff&rounded=true"
+                            class="w-10 h-10 rounded-full" alt="<%= reply.name %>">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-white">
+                                        <%= reply.name %>
+                                    </span>
+                                    <span class="text-neutral-500 text-sm">@<%= reply.username %></span>
+                                </div>
+                                <span class="text-neutral-500 text-xs">
+                                    <%= new Date(reply.created_at).toLocaleDateString() %>
                                 </span>
-                                <span class="text-neutral-500 text-sm">@<%= reply.username %></span>
                             </div>
-                            <span class="text-neutral-500 text-xs">
-                                <%= new Date(reply.created_at).toLocaleDateString() %>
-                            </span>
-                        </div>
-                        <div class="text-neutral-200 mt-1">
-                            <%= reply.content %>
+                            <div class="text-neutral-200 mt-1 whitespace-pre-wrap">
+                                <%= reply.content %>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <% }) %>
+                </a>
+                <% }) %>
 
-                <% if (replies.length===0) { %>
-                    <div class="text-center py-8 text-neutral-600 italic">No replies yet. Be the first!</div>
-                    <% } %>
+                    <% if (replies.length===0) { %>
+                        <div class="text-center py-8 text-neutral-600 italic">No replies yet. Be the first!</div>
+                        <% } %>
     </div>
 
     <%- include('partials/footer') %>

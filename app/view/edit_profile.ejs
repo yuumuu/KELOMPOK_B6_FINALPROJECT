@@ -1,0 +1,22 @@
+<%- include('partials/header', { title: 'Edit Profile' , db_status: db_status }) %>
+
+    <form action="/profile?_method=PUT" method="POST" class="max-w-xl mx-auto bg-slate-800/50 p-6 rounded-xl shadow-lg">
+        <label class="block mb-2">Name</label>
+        <input type="text" name="name" value="<%= user.name %>"
+            class="w-full p-2 rounded-lg bg-slate-700/50 border border-slate-600/50 text-white" required>
+
+        <label class="block mt-4 mb-2">Username</label>
+        <input type="text" name="username" value="<%= user.username %>"
+            class="w-full p-2 rounded-lg bg-slate-700/50 border border-slate-600/50 text-white" required>
+
+        <label class="block mt-4 mb-2">New Password (leave blank to keep)</label>
+        <input type="password" name="password"
+            class="w-full p-2 rounded-lg bg-slate-700/50 border border-slate-600/50 text-white">
+
+        <div class="mt-4">
+            <button type="submit" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg">Update</button>
+            <a href="/profile" class="ml-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancel</a>
+        </div>
+    </form>
+
+    <%- include('partials/footer') %>

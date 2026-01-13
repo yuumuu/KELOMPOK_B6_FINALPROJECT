@@ -98,7 +98,7 @@ router.get('/', async (req, res) => {
     try {
         const [posts] = await db.query(`
             SELECT 
-                p.id, p.content, p.likes, p.created_at,
+                p.id, p.user_id, p.content, p.likes, p.created_at,
                 u.username, u.name,
                 (SELECT COUNT(*) FROM posts WHERE parent_id = p.id) as reply_count
             FROM posts p
@@ -187,6 +187,173 @@ router.post('/posts/:id/reply', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Error replying');
+    }
+});
+
+// Like a post (simple increment)
+router.post('/posts/:id/like', isAuthenticated, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.query('UPDATE posts SET likes = likes + 1 WHERE id = ?', [id]);
+        res.redirect(req.get('referer') || '/');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error liking post');
+    }
+});
+
+// Share a post (create a new post with the original content prefixed)
+router.post('/posts/:id/share', isAuthenticated, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await db.query('SELECT content FROM posts WHERE id = ?', [id]);
+        if (rows.length === 0) return res.status(404).send('Post not found');
+
+        const original = rows[0];
+        const userId = req.session.user.id;
+        const sharedContent = `Shared: ${original.content}`;
+
+        await db.query('INSERT INTO posts (user_id, content) VALUES (?, ?)', [userId, sharedContent]);
+        res.redirect('/');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error sharing post');
+    }
+});
+
+// Edit post form
+router.get('/posts/:id/edit', isAuthenticated, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await db.query('SELECT * FROM posts WHERE id = ?', [id]);
+        if (rows.length === 0) return res.status(404).send('Post not found');
+
+        const post = rows[0];
+        if (post.user_id !== req.session.user.id) return res.status(403).send('Forbidden');
+
+        res.render('edit', { title: 'Edit Tweet', db_status: 'Connected', post });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error');
+    }
+});
+
+// Update post
+router.put('/posts/:id', isAuthenticated, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { content } = req.body;
+
+        const [rows] = await db.query('SELECT user_id FROM posts WHERE id = ?', [id]);
+        if (rows.length === 0) return res.status(404).send('Post not found');
+        if (rows[0].user_id !== req.session.user.id) return res.status(403).send('Forbidden');
+
+        await db.query('UPDATE posts SET content = ? WHERE id = ?', [content, id]);
+        res.redirect('/');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error updating post');
+    }
+});
+
+// Delete post
+router.delete('/posts/:id', isAuthenticated, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await db.query('SELECT user_id FROM posts WHERE id = ?', [id]);
+        if (rows.length === 0) return res.status(404).send('Post not found');
+        if (rows[0].user_id !== req.session.user.id) return res.status(403).send('Forbidden');
+
+        await db.query('DELETE FROM posts WHERE id = ?', [id]);
+        res.redirect(req.get('referer') || '/');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error deleting post');
+    }
+});
+
+// ====================
+// PROFILE ROUTES
+// ====================
+
+// View current user's profile
+router.get('/profile', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const [users] = await db.query('SELECT id, username, name, created_at FROM users WHERE id = ?', [userId]);
+        if (users.length === 0) return res.status(404).send('User not found');
+
+        const profile = users[0];
+        const [posts] = await db.query(`SELECT p.*, p.parent_id, (SELECT COUNT(*) FROM posts WHERE parent_id = p.id) as reply_count FROM posts p WHERE p.user_id = ? ORDER BY p.created_at DESC`, [userId]);
+
+        res.render('profile', { title: 'Profile', db_status: 'Connected', profile, posts });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error');
+    }
+});
+
+// View other user's profile by username
+router.get('/users/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const [users] = await db.query('SELECT id, username, name, created_at FROM users WHERE username = ?', [username]);
+        if (users.length === 0) return res.status(404).send('User not found');
+
+        const profile = users[0];
+        const [posts] = await db.query(`SELECT p.*, p.parent_id, (SELECT COUNT(*) FROM posts WHERE parent_id = p.id) as reply_count FROM posts p WHERE p.user_id = ? ORDER BY p.created_at DESC`, [profile.id]);
+
+        res.render('profile', { title: profile.username, db_status: 'Connected', profile, posts });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error');
+    }
+});
+
+// Edit profile form
+router.get('/profile/edit', isAuthenticated, (req, res) => {
+    res.render('edit_profile', { title: 'Edit Profile', db_status: 'Connected' });
+});
+
+// Update profile
+router.put('/profile', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const { name, username, password } = req.body;
+
+        // Check username uniqueness
+        const [existing] = await db.query('SELECT id FROM users WHERE username = ? AND id != ?', [username, userId]);
+        if (existing.length > 0) return res.status(400).send('Username already taken');
+
+        if (password && password.length > 0) {
+            const hashed = await bcrypt.hash(password, 10);
+            await db.query('UPDATE users SET name = ?, username = ?, password = ? WHERE id = ?', [name, username, hashed, userId]);
+        } else {
+            await db.query('UPDATE users SET name = ?, username = ? WHERE id = ?', [name, username, userId]);
+        }
+
+        // Update session
+        req.session.user.username = username;
+        req.session.user.name = name;
+
+        res.redirect('/profile');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error updating profile');
+    }
+});
+
+// Delete account
+router.delete('/profile', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        await db.query('DELETE FROM users WHERE id = ?', [userId]);
+        req.session.destroy(() => {
+            res.redirect('/register');
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error deleting account');
     }
 });
 

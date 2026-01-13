@@ -1,0 +1,45 @@
+<%- include('partials/header', { title: (profile.username ? profile.username : 'Profile' ), db_status: db_status }) %>
+
+    <div class="px-4 py-4">
+        <div class="flex items-center gap-4 mb-4">
+            <img src="https://ui-avatars.com/api/?name=<%= profile.name %>&background=random&color=fff&rounded=true"
+                class="w-16 h-16 rounded-full">
+            <div>
+                <h2 class="font-bold text-xl">
+                    <%= profile.name %>
+                </h2>
+                <div class="text-neutral-500">@<%= profile.username %>
+                </div>
+            </div>
+            <% if (user && user.id===profile.id) { %>
+                <div class="ml-auto flex gap-2">
+                    <a href="/profile/edit" class="px-3 py-1 bg-yellow-600 rounded text-sm">Edit Profile</a>
+                    <form action="/profile?_method=DELETE" method="POST"
+                        onsubmit="return confirm('Delete your account?')">
+                        <button class="px-3 py-1 bg-red-600 rounded text-sm">Delete Account</button>
+                    </form>
+                </div>
+                <% } %>
+        </div>
+
+        <h3 class="font-bold mb-2">Posts</h3>
+        <div class="flex flex-col">
+            <% if (posts.length===0) { %>
+                <div class="text-neutral-500 italic">No posts yet.</div>
+                <% } %>
+                    <% posts.forEach(p=> { %>
+                        <% const linkTo=p.parent_id ? p.parent_id : p.id; %>
+                            <a href="/posts/<%= linkTo %>"
+                                class="block border-b border-neutral-800 p-3 hover:bg-neutral-900/30">
+                                <div class="text-white">
+                                    <%= p.content %>
+                                </div>
+                                <div class="text-neutral-500 text-xs mt-1">
+                                    <%= new Date(p.created_at).toLocaleString() %>
+                                </div>
+                            </a>
+                            <% }) %>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
