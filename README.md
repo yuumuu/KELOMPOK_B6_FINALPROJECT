@@ -35,29 +35,21 @@ Berikut adalah kondisi awal file yang kalian terima:
 
 ---
 
-## 🛠️ Cara Menggunakan Template Ini
+## 🛠️ Cara Menggunakan Repo Ini
 
 1.  **Clone Repository:**
     ```bash
-    git clone [https://github.com/kakonoomoidee/praktikum-tekser-template.git](https://github.com/kakonoomoidee/praktikum-tekser-template.git) [NAMA_PROJECT_KELIAN]
+    git clone https://github.com/yuumuu/KELOMPOK_B6_FINALPROJECT.git
     ```
 
-2.  **Bersihkan Jejak Git Lama (PENTING!):**
-    Masuk ke folder, lalu hapus git bawaan agar bisa di-push ke repo kelompok kalian sendiri.
-    ```bash
-    cd [NAMA_PROJECT_KELIAN]
-    rm -rf .git
-    git init
-    ```
-
-3.  **Setup Environment Variable (CRUCIAL):**
+2.  **Setup Environment Variable (CRUCIAL):**
     Copy file template environment menjadi file `.env` aktif.
     ```bash
     cp .env.example .env
     ```
     > **Tugas:** Buka file `.env` tersebut, lalu isi `GROUP_NAME`, `APP_PORT`, dan konfigurasi Database sesuai rancangan kelompok kalian.
 
-4.  **Mulai Coding!**
+3.  **Mulai Coding!**
     - Silakan bagi tugas sesuai Role yang sudah disepakati (Backend, DevOps, Database).
     - Pastikan semua password database diambil dari process.env (Jangan di-hardcode!).
 
