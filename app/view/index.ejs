@@ -2,7 +2,7 @@
 
   <div class="border-b border-neutral-800 pb-4 mb-4">
     <% if (user) { %>
-      <div class="flex gap-4 px-4">
+      <div class="flex gap-4 px-4 py-3">
         <img src="https://ui-avatars.com/api/?name=<%= user.name %>&background=random&color=fff&rounded=true"
           class="w-10 h-10 rounded-full flex-shrink-0" alt="Avatar">
 
@@ -63,7 +63,7 @@
                   </span>
                 </div>
 
-                <p class="text-neutral-200 text-[15px] mt-1 leading-relaxed whitespace-pre-wrap">
+                <p class="text-neutral-200 text-[15px] mt-1 leading-relaxed">
                   <%= post.content %>
                 </p>
 

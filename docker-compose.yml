@@ -22,6 +22,8 @@ services:
     build: ./app
     container_name: app_${GROUP_NAME}
     restart: always
+    # ports: 
+    #   - "${APP_PORT}:${APP_PORT}"
     environment:
       - DB_HOST=db_service
       - DB_USER=${DB_USER}
