@@ -5,14 +5,18 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "build:css": "npx tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch"
   },
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "dotenv": "^16.3.1",
-    "ejs": "^3.1.9",
-    "express": "^4.18.2",
-    "mysql2": "^3.6.1"
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^1.20.4",
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.10",
+    "express": "^4.22.1",
+    "express-session": "^1.18.2",
+    "method-override": "^3.0.0",
+    "mysql2": "^3.16.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.23",

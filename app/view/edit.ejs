@@ -1,0 +1,10 @@
+<%- include('partials/header', { title: 'Edit Tweet', db_status: db_status }) %>
+
+<form action="/posts/<%= post.id %>?_method=PUT" method="POST" class="max-w-xl mx-auto bg-slate-800/50 p-6 rounded-xl shadow-lg">
+  <label class="block mb-2">Content</label>
+  <textarea name="content" rows="4" class="w-full p-2 rounded-lg bg-slate-700/50 border border-slate-600/50 text-white"><%= post.content %></textarea>
+  <button type="submit" class="mt-4 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg">Update</button>
+  <a href="/" class="ml-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg">Cancel</a>
+</form>
+
+<%- include('partials/footer') %>

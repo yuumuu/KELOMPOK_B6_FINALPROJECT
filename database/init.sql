@@ -1,7 +1,6 @@
--- TODO: Tulis query SQL kalian di sini (CREATE TABLE & INSERT) untuk inisialisasi database otomatis
 -- Tabel 1: Users (Utama)
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -9,12 +8,12 @@ CREATE TABLE users (
 );
 
 -- Tabel 2: Posts (Pendukung)
-CREATE TABLE posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
     content TEXT NOT NULL,
-    likes INTEGER DEFAULT 0,
-    parent_id INTEGER,
+    likes INT DEFAULT 0,
+    parent_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (parent_id) REFERENCES posts(id) ON DELETE CASCADE
@@ -24,3 +23,13 @@ CREATE TABLE posts (
 CREATE INDEX idx_posts_user_id ON posts(user_id);
 CREATE INDEX idx_posts_parent_id ON posts(parent_id);
 CREATE INDEX idx_users_username ON users(username);
+
+-- Insert dummy data untuk testing
+INSERT INTO users (username, name, password) VALUES 
+('admin', 'Administrator', '$2a$10$dummyhash'),
+('testuser', 'Test User', '$2a$10$dummyhash2');
+
+INSERT INTO posts (user_id, content, likes) VALUES 
+(1, 'Welcome to our Express app! This is the first post.', 5),
+(2, 'Hello everyone! Excited to be here.', 3),
+(1, 'Check out our new features!', 10);

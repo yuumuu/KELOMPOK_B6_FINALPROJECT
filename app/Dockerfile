@@ -1,5 +1,8 @@
 FROM node:18-alpine
 
+# Install wget for healthcheck
+RUN apk add --no-cache wget
+
 # Tentukan working directory
 WORKDIR /usr/src/app
 
@@ -8,6 +11,8 @@ COPY package*.json ./
 
 # Install dependencies
 RUN npm install
+
+ENV NODE_ENV=development
 
 # Salin sisa file aplikasi
 COPY . .

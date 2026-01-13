@@ -1,103 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- include('partials/header', { title: 'Home' , db_status: db_status }) %>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>
-    <%= title %>
-  </title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0f172a;
-      color: #f8fafc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      text-align: center;
-    }
+  <div class="border-b border-neutral-800 pb-4 mb-4">
+    <% if (user) { %>
+      <div class="flex gap-4 px-4">
+        <img src="https://ui-avatars.com/api/?name=<%= user.name %>&background=random&color=fff&rounded=true"
+          class="w-10 h-10 rounded-full flex-shrink-0" alt="Avatar">
 
-    .container {
-      padding: 3rem;
-      background-color: #1e293b;
-      border-radius: 1.5rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      border: 1px solid #334155;
-      max-width: 500px;
-      width: 90%;
-    }
+        <form action="/posts" method="POST" class="w-full">
+          <textarea name="content" placeholder="Start a thread..." required
+            class="w-full bg-transparent text-white text-lg placeholder-neutral-500 focus:outline-none resize-none h-12 py-2"
+            oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
 
-    h1 {
-      color: #38bdf8;
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(to right, #38bdf8, #818cf8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    p {
-      color: #94a3b8;
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-
-    .status-group {
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .badge {
-      padding: 0.6rem 1.2rem;
-      border-radius: 0.75rem;
-      font-weight: 600;
-      font-size: 0.9rem;
-      display: inline-block;
-    }
-
-    .badge-app {
-      background-color: #064e3b;
-      color: #34d399;
-    }
-
-    .badge-db {
-      background-color: <%=db_status.includes('Connected') ? '#064e3b': '#7f1d1d' %>;
-      color: <%=db_status.includes('Connected') ? '#34d399': '#fca5a5' %>;
-    }
-
-    .footer {
-      margin-top: 2rem;
-      font-size: 0.8rem;
-      color: #475569;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <h1>
-      <%= title %>
-    </h1>
-    <p>Your professional Express.js stack with Docker isolation, Nginx reverse proxy, and MySQL persistence.</p>
-
-    <div class="status-group">
-      <div>
-        <span class="badge badge-app">APP STATUS: RUNNING</span>
+          <div class="flex justify-between items-center mt-2">
+            <span class="text-neutral-500 text-xs">Anyone can reply</span>
+            <button type="submit"
+              class="px-5 py-1.5 bg-white text-black font-semibold rounded-full text-sm hover:bg-neutral-200 transition">
+              Post
+            </button>
+          </div>
+        </form>
       </div>
-      <div>
-        <span class="badge badge-db">DB STATUS: <%= db_status %></span>
-      </div>
-    </div>
-
-    <div class="footer">
-      Built with ❤️ for Group B6 Final Project
-    </div>
+      <% } else { %>
+        <div class="px-4 py-2 text-center">
+          <p class="text-neutral-500 text-sm mb-3">Join the conversation.</p>
+          <div class="flex gap-3 justify-center">
+            <a href="/login"
+              class="px-6 py-2 bg-white text-black font-bold rounded-full text-sm hover:bg-neutral-200 transition">Login</a>
+            <a href="/register"
+              class="px-6 py-2 border border-neutral-600 text-white font-bold rounded-full text-sm hover:bg-neutral-800 transition">Sign
+              Up</a>
+          </div>
+        </div>
+        <% } %>
   </div>
-</body>
 
-</html>
+  <div class="flex flex-col">
+    <% if (posts.length===0) { %>
+      <div class="text-center py-10 text-neutral-500">No posts yet.</div>
+      <% } %>
+
+        <% posts.forEach(post=> { %>
+          <a href="/posts/<%= post.id %>"
+            class="block border-b border-neutral-800 hover:bg-neutral-900/50 transition duration-200">
+            <div class="flex gap-4 p-4">
+
+              <div class="flex-shrink-0">
+                <img
+                  src="https://ui-avatars.com/api/?name=<%= post.name %>&background=random&color=fff&rounded=true&size=40"
+                  class="w-10 h-10 rounded-full border border-neutral-800" alt="<%= post.name %>">
+              </div>
+
+              <div class="flex-1">
+                <div class="flex justify-between items-start">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-white text-[15px]">
+                      <%= post.name %>
+                    </span>
+                    <span class="text-neutral-500 text-sm">@<%= post.username %></span>
+                  </div>
+                  <span class="text-neutral-500 text-xs">
+                    <%= new Date(post.created_at).toLocaleDateString('en-US', { month: 'short' , day: 'numeric' }) %>
+                  </span>
+                </div>
+
+                <p class="text-neutral-200 text-[15px] mt-1 leading-relaxed whitespace-pre-wrap">
+                  <%= post.content %>
+                </p>
+
+                <div class="flex items-center gap-6 mt-3 text-neutral-500">
+                  <div class="flex items-center gap-2 group cursor-pointer hover:text-blue-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                      </path>
+                    </svg>
+                    <span class="text-xs group-hover:text-blue-400">
+                      <%= post.reply_count> 0 ? post.reply_count : '' %>
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-2 group cursor-pointer hover:text-pink-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                      </path>
+                    </svg>
+                    <span class="text-xs group-hover:text-pink-500">
+                      <%= post.likes> 0 ? post.likes : '' %>
+                    </span>
+                  </div>
+
+                  <div class="hover:text-green-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
+                      </path>
+                    </svg>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </a>
+          <% }) %>
+  </div>
+
+  <%- include('partials/footer') %>
