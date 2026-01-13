@@ -113,8 +113,13 @@ router.get('/', async (req, res) => {
             posts
         });
     } catch (err) {
-        console.error(err);
-        res.send('Database Error');
+        console.error('DB ERROR DETAIL: ', err);
+	res.status(500).json({
+		message: 'Database Error',
+		error: err.message
+	});
+
+	//res.send('Database Error');
     }
 });
 
