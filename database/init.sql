@@ -23,13 +23,3 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE INDEX idx_posts_user_id ON posts(user_id);
 CREATE INDEX idx_posts_parent_id ON posts(parent_id);
 CREATE INDEX idx_users_username ON users(username);
-
--- Insert dummy data untuk testing
-INSERT INTO users (username, name, password) VALUES 
-('admin', 'Administrator', '$2a$10$dummyhash'),
-('testuser', 'Test User', '$2a$10$dummyhash2');
-
-INSERT INTO posts (user_id, content, likes) VALUES 
-(1, 'Welcome to our Express app! This is the first post.', 5),
-(2, 'Hello everyone! Excited to be here.', 3),
-(1, 'Check out our new features!', 10);
